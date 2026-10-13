@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EquiRace Pro - Premier Racing & Sportsbook</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            400: '#FBBF24',
+                            500: '#F59E0B',
+                            600: '#D97706',
+                        },
+                        neon: {
+                            400: '#34D399',
+                            500: '#10B981',
+                            600: '#059669',
+                        },
+                        darkbg: '#0F172A',
+                        cardbg: '#1E293B',
+                        panelbg: '#111827',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0f19;
+            color: #f3f4f6;
+            overflow-x: hidden;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        .glow-gold {
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.25);
+        }
+        .glow-neon {
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.25);
+        }
+        .odd-flash-up {
+            animation: flashGreen 1s ease;
+        }
+        .odd-flash-down {
+            animation: flashRed 1s ease;
+        }
+        @keyframes flashGreen {
+            0% { background-color: rgba(16, 185, 129, 0.5); }
+            100% { background-color: transparent; }
+        }
+        @keyframes flashRed {
+            0% { background-color: rgba(239, 68, 68, 0.5); }
+            100% { background-color: transparent; }
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between text-slate-200">
+
+    <!-- TOP HEADER / NAVIGATION -->
+    <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 lg:px-8 py-3">
+        <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+            <!-- Logo -->
+            <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('live')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-emerald-400 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg shadow-amber-500/20">
+                    <i class="fa-solid font-bold fa-horse-head"></i>
+                </div>
+                <div>
+                    <span class="text-xl font-extrabold tracking-wider bg-gradient-to-r from-amber-400 via-emerald-400 to-teal-200 bg-clip-text text-transparent">EQUI<span class="text-white">RACE</span></span>
+                    <span class="hidden sm:inline-block text-[10px] uppercase tracking-widest text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-500/30 ml-2 font-semibold">Pro Sportsbook</span>
+                </div>
+            </div>
+
+            <!-- Main Nav Links -->
+            <nav class="hidden md:flex items-center gap-1 bg-slate-950/60 p-1 rounded-xl border border-slate-800/80">
+                <button onclick="switchTab('live')" id="nav-live" class="nav-btn px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-2">
+                    <i class="fa-solid fa-tower-broadcast text-xs animate-pulse text-amber-400"></i> Live Racing & Odds
+                </button>
+                <button onclick="switchTab('cards')" id="nav-cards" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white transition-all duration-200 flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-days text-xs"></i> Racecards
+                </button>
+                <button onclick="switchTab('history')" id="nav-history" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white transition-all duration-200 flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-xs"></i> My Bets
+                </button>
+            </nav>
+
+            <!-- User Balance & Payment Actions -->
+            <div class="flex items-center gap-3">
+                <div class="bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-1.5 flex items-center gap-3">
+                    <div class="flex flex-col text-right">
+                        <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Available Balance</span>
+                        <span id="user-balance" class="text-sm font-extrabold text-emerald-400 tracking-wide">$2,450.00</span>
+                    </div>
+                    <button onclick="openDepositModal()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs transition-all shadow-md shadow-emerald-500/20 flex items-center gap-1.5">
+                        <i class="fa-solid fa-wallet"></i> Cashier
+                    </button>
+                </div>
+                
+                <div class="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white cursor-pointer transition">
+                    <i class="fa-solid fa-user-gear text-sm"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- LIVE RACE COMMENTARY / TICKER BANNER -->
+    <div class="bg-slate-950 border-b border-slate-800/80 px-4 py-2 text-xs flex items-center gap-3 overflow-hidden">
+        <span class="bg-red-600 text-white font-extrabold px-2 py-0.5 rounded text-[10px] uppercase tracking-wider animate-pulse shrink-0 flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-white"></span> FLASH NEWS
+        </span>
+        <div class="overflow-hidden relative w-full text-slate-300 font-medium">
+            <div id="ticker-text" class="whitespace-nowrap inline-block animate-marquee">
+                🏇 Ascot R4: 'Thunder Bolt' odds shortened from 4.5 to 3.2 following heavy track action! | 🏆 Kentucky Derby Next Off: 12 mins | 💰 Guaranteed Jackpot Pool for Royal Ascot: $1,250,000!
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-7xl mx-auto w-full px-4 lg:px-8 py-6 flex-grow">
+        
+        <!-- TAB 1: LIVE DASHBOARD -->
+        <div id="tab-live" class="tab-content grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- LEFT & CENTER PANEL: STREAM PLAYER & DYNAMIC ODDS (8 COLS) -->
+            <div class="lg:col-span-8 flex flex-col gap-6">
+                
+                <!-- STREAM / RACE SIMULATOR CARD -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl relative">
+                    <!-- Stream Controls / Header -->
+                    <div class="bg-slate-950/80 px-4 py-3 border-b border-slate-800 flex items-center justify-between flex-wrap gap-2">
+                        <div class="flex items-center gap-2">
+                            <span id="current-race-venue" class="font-extrabold text-amber-400 text-base">ROYAL ASCOT - RACE 4</span>
+                            <span id="current-race-type" class="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono">1200m • Turf • Class 1</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs">
+                            <span class="flex items-center gap-1.5 text-emerald-400 font-bold bg-emerald-950/50 border border-emerald-800/50 px-2.5 py-1 rounded-full">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> LIVE SIMULATION
+                            </span>
+                            <button id="btn-toggle-view" onclick="toggleStreamMode()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-2.5 py-1 rounded-lg border border-slate-700 transition flex items-center gap-1">
+                                <i class="fa-solid fa-tv text-amber-400"></i> <span id="view-mode-label">Interactive 2D Track</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- STREAM SCREEN AREA -->
+                    <div class="relative aspect-video bg-slate-950 flex flex-col justify-between p-4 overflow-hidden group">
+                        
+                        <!-- 2D SIMULATION CANVAS / VISUALIZER -->
+                        <div id="simulation-container" class="absolute inset-0 z-10 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 p-4 flex flex-col justify-center">
+                            <!-- Track Backdrop Lines -->
+                            <div class="relative w-full h-48 bg-emerald-950/30 rounded-xl border border-emerald-800/30 overflow-hidden flex flex-col justify-around py-2 px-6">
+                                <!-- Track Finish Line -->
+                                <div class="absolute right-12 top-0 bottom-0 w-3 bg-red-600/60 z-0 border-x border-white/20 flex flex-col justify-between text-[9px] text-white font-extrabold items-center">
+                                    <span>F</span><span>I</span><span>N</span><span>I</span><span>S</span><span>H</span>
+                                </div>
+                                
+                                <!-- Horses Running Lanes -->
+                                <div id="horse-lane-1" class="relative w-full h-8 border-b border-emerald-800/20 flex items-center">
+                                    <div id="runner-marker-1" class="absolute left-2 transition-all duration-300 flex items-center gap-1 z-10" style="left: 5%;">
+                                        <div class="bg-amber-500 text-slate-950 font-black text-xs w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow">1</div>
+                                        <i class="fa-solid fa-horse text-amber-400 text-lg transform -scale-x-100"></i>
+                                    </div>
+                                </div>
+                                <div id="horse-lane-2" class="relative w-full h-8 border-b border-emerald-800/20 flex items-center">
+                                    <div id="runner-marker-2" class="absolute left-2 transition-all duration-300 flex items-center gap-1 z-10" style="left: 3%;">
+                                        <div class="bg-blue-500 text-white font-black text-xs w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow">2</div>
+                                        <i class="fa-solid fa-horse text-blue-400 text-lg transform -scale-x-100"></i>
+                                    </div>
+                                </div>
+                                <div id="horse-lane-3" class="relative w-full h-8 border-b border-emerald-800/20 flex items-center">
+                                    <div id="runner-marker-3" class="absolute left-2 transition-all duration-300 flex items-center gap-1 z-10" style="left: 7%;">
+                                        <div class="bg-red-500 text-white font-black text-xs w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow">3</div>
+                                        <i class="fa-solid fa-horse text-red-400 text-lg transform -scale-x-100"></i>
+                                    </div>
+                                </div>
+                                <div id="horse-lane-4" class="relative w-full h-8 flex items-center">
+                                    <div id="runner-marker-4" class="absolute left-2 transition-all duration-300 flex items-center gap-1 z-10" style="left: 2%;">
+                                        <div class="bg-emerald-500 text-slate-950 font-black text-xs w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow">4</div>
+                                        <i class="fa-solid fa-horse text-emerald-400 text-lg transform -scale-x-100"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Live Race Stats Header Overlay -->
+                            <div class="mt-4 flex items-center justify-between bg-slate-900/90 p-2.5 rounded-lg border border-slate-800 text-xs">
+                                <div class="flex items-center gap-4">
+                                    <span class="text-slate-400">Distance Left: <strong id="dist-left" class="text-amber-400">450m</strong></span>
+                                    <span class="text-slate-400">Pace: <strong id="race-pace" class="text-emerald-400">Fast (58 km/h)</strong></span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-slate-400">Leader:</span>
+                                    <span id="race-leader" class="font-extrabold text-amber-400 flex items-center gap-1">
+                                        <span class="w-4 h-4 bg-red-500 rounded-full text-[10px] text-white flex items-center justify-center">3</span> Golden Arrow
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- VIDEO STREAM PLAYER SIMULATION CONTAINER (HIDDEN INITIALLY) -->
+                        <div id="video-stream-container" class="absolute inset-0 z-0 bg-slate-950 flex items-center justify-center hidden">
+                            <img src="https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1200&q=80" alt="Horse Race Stream Simulation" class="w-full h-full object-cover opacity-60">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/50"></div>
+                            <div class="absolute center flex flex-col items-center gap-2 text-center p-4">
+                                <div class="w-16 h-16 rounded-full bg-amber-500/20 border border-amber-500 text-amber-400 flex items-center justify-center text-2xl backdrop-blur-md animate-pulse">
+                                    <i class="fa-solid fa-play"></i>
+                                </div>
+                                <span class="text-sm font-bold tracking-wide">HD Live Broadcast Feed Active</span>
+                                <span class="text-xs text-slate-400">Satellite Latency: 0.4s • Ascot Feed #2</span>
+                            </div>
+                        </div>
+
+                        <!-- Top Player Info -->
+                        <div class="relative z-20 flex justify-between items-start pointer-events-none">
+                            <span class="bg-slate-900/80 backdrop-blur-md border border-slate-700/80 text-amber-400 px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5">
+                                <i class="fa-solid fa-trophy text-amber-400"></i> Group 1 Stakes • $500k Purse
+                            </span>
+                            <div class="bg-slate-900/80 backdrop-blur-md border border-slate-700/80 px-3 py-1 rounded-lg text-xs font-mono font-bold text-emerald-400 flex items-center gap-2">
+                                <i class="fa-regular fa-clock"></i> <span id="race-timer">00:42.8</span>
+                            </div>
+                        </div>
+
+                        <!-- Bottom Stream Bar Controls -->
+                        <div class="relative z-20 flex items-center justify-between text-xs pt-2">
+                            <div class="flex items-center gap-3">
+                                <button onclick="triggerRaceSimulation()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-1.5 rounded-lg transition shadow flex items-center gap-1.5">
+                                    <i class="fa-solid fa-rotate-right"></i> Restart Sim
+                                </button>
+                                <span class="text-slate-400 hidden sm:inline"><i class="fa-solid fa-volume-high text-slate-500 mr-1"></i> Live Audio Commentary Active</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-2 py-0.5 rounded font-mono">1080p60 FPS</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LIVE RACECARD RUNNERS & REAL-TIME ODDS TABLE -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                    <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+                        <div>
+                            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-list-ol text-amber-400"></i> Racecard Runners & Real-Time Odds
+                            </h3>
+                            <p class="text-xs text-slate-400">Odds update dynamically in real time based on pool volume and track parameters.</p>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs">
+                            <span class="text-slate-400">Odds Format:</span>
+                            <select id="odds-format" onchange="updateOddsDisplayFormat()" class="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200 font-mono focus:outline-none focus:border-amber-500">
+                                <option value="decimal">Decimal (2.50)</option>
+                                <option value="fractional">Fractional (6/4)</option>
+                                <option value="american">American (+150)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- RUNNERS TABLE -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead>
+                                <tr class="text-xs uppercase text-slate-400 border-b border-slate-800 bg-slate-950/40">
+                                    <th class="py-3 px-3"># No / Silk</th>
+                                    <th class="py-3 px-3">Horse / Jockey</th>
+                                    <th class="py-3 px-3 hidden sm:table-cell">Form / Weight</th>
+                                    <th class="py-3 px-3 text-center">Win Odds</th>
+                                    <th class="py-3 px-3 text-center">Place Odds</th>
+                                    <th class="py-3 px-3 text-right">Wager Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="runners-table-body" class="divide-y divide-slate-800/60 font-medium">
+                                <!-- Dynamic Runners Rows Injected Here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT PANEL: INTERACTIVE BETTING SLIP & QUICK BETS (4 COLS) -->
+            <div class="lg:col-span-4 flex flex-col gap-6">
+                
+                <!-- BET SLIP CONTAINER -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl flex flex-col sticky top-20">
+                    <!-- Slip Header -->
+                    <div class="bg-slate-950 px-5 py-4 border-b border-slate-800 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-ticket text-emerald-400 text-lg"></i>
+                            <h2 class="font-extrabold text-white text-base">Betting Slip</h2>
+                            <span id="bet-count-badge" class="bg-emerald-500/20 text-emerald-400 text-xs font-bold px-2 py-0.5 rounded-full border border-emerald-500/30">0</span>
+                        </div>
+                        <button onclick="clearBetSlip()" class="text-xs text-slate-400 hover:text-red-400 transition flex items-center gap-1">
+                            <i class="fa-solid fa-trash-can"></i> Clear All
+                        </button>
+                    </div>
+
+                    <!-- Bet Type Selector Tabs -->
+                    <div class="grid grid-cols-3 bg-slate-950/60 border-b border-slate-800 p-1 text-xs font-semibold text-center">
+                        <button onclick="setBetType('single')" id="bet-type-single" class="py-2 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 transition">Single</button>
+                        <button onclick="setBetType('exacta')" id="bet-type-exacta" class="py-2 rounded-lg text-slate-400 hover:text-white transition">Exacta</button>
+                        <button onclick="setBetType('trifecta')" id="bet-type-trifecta" class="py-2 rounded-lg text-slate-400 hover:text-white transition">Trifecta</button>
+                    </div>
+
+                    <!-- Selected Bets List -->
+                    <div id="bet-slip-items" class="p-4 flex flex-col gap-3 min-h-[180px] max-h-[320px] overflow-y-auto bg-slate-900/40">
+                        <!-- Empty State -->
+                        <div id="empty-slip-msg" class="flex flex-col items-center justify-center text-center py-10 text-slate-500">
+                            <i class="fa-solid fa-receipt text-4xl mb-2 text-slate-700"></i>
+                            <p class="text-sm font-medium">Your betting slip is currently empty.</p>
+                            <p class="text-xs text-slate-600 mt-1">Click on any odds button to add a runner to your slip.</p>
+                        </div>
+                    </div>
+
+                    <!-- Bet Summary & Stake Inputs -->
+                    <div class="bg-slate-950 p-5 border-t border-slate-800 flex flex-col gap-3">
+                        
+                        <!-- Quick Stake Selector -->
+                        <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+                            <span>Quick Add Stake:</span>
+                            <div class="flex gap-1.5">
+                                <button onclick="addQuickStake(5)" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-1 rounded font-mono font-bold border border-slate-700">+$5</button>
+                                <button onclick="addQuickStake(10)" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-1 rounded font-mono font-bold border border-slate-700">+$10</button>
+                                <button onclick="addQuickStake(25)" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-1 rounded font-mono font-bold border border-slate-700">+$25</button>
+                                <button onclick="addQuickStake(100)" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-1 rounded font-mono font-bold border border-slate-700">+$100</button>
+                            </div>
+                        </div>
+
+                        <!-- Total Stake & Returns -->
+                        <div class="flex justify-between items-center text-sm py-1 border-b border-slate-800">
+                            <span class="text-slate-400 font-medium">Total Stake:</span>
+                            <span id="slip-total-stake" class="font-mono font-bold text-white text-base">$0.00</span>
+                        </div>
+
+                        <div class="flex justify-between items-center text-sm py-1">
+                            <span class="text-slate-400 font-medium">Potential Payout:</span>
+                            <span id="slip-potential-payout" class="font-mono font-extrabold text-emerald-400 text-lg">$0.00</span>
+                        </div>
+
+                        <!-- Place Bet Button -->
+                        <button onclick="placeWager()" id="btn-place-wager" disabled class="w-full mt-2 py-3.5 bg-gradient-to-r from-amber-500 to-emerald-500 text-slate-950 font-black text-sm uppercase tracking-wider rounded-xl hover:from-amber-400 hover:to-emerald-400 transition-all shadow-lg shadow-amber-500/20 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-bolt"></i> Place Wager
+                        </button>
+
+                        <div class="flex items-center justify-center gap-2 text-[11px] text-slate-500 mt-1">
+                            <i class="fa-solid fa-shield-halved text-emerald-500"></i> Encrypted 256-Bit Wagering Engine
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RACING STATISTICS MINI-CARD -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line text-amber-400"></i> Track Conditions & Insights
+                    </h4>
+                    <div class="grid grid-cols-2 gap-3 text-xs">
+                        <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                            <span class="text-slate-500 block">Going Condition</span>
+                            <span class="font-bold text-slate-200">Good to Firm</span>
+                        </div>
+                        <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                            <span class="text-slate-500 block">Weather</span>
+                            <span class="font-bold text-slate-200"><i class="fa-solid fa-sun text-amber-400"></i> 22°C Clear</span>
+                        </div>
+                        <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                            <span class="text-slate-500 block">Track Bias</span>
+                            <span class="font-bold text-slate-200">Front Runners (+12%)</span>
+                        </div>
+                        <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                            <span class="text-slate-500 block">Stalls Advantage</span>
+                            <span class="font-bold text-slate-200">Low Draw (1-4)</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- TAB 2: RACECARDS & SCHEDULE -->
+        <div id="tab-cards" class="tab-content hidden flex-col gap-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h2 class="text-xl font-extrabold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-calendar-days text-amber-400"></i> Today's Full Race Schedule
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-1">Filter upcoming fixtures, check purse values, track surfaces, and runners.</p>
+                    </div>
+                    <!-- Venues Filter -->
+                    <div class="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0">
+                        <button onclick="filterSchedule('all')" class="schedule-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-slate-950 border border-amber-400">All Tracks</button>
+                        <button onclick="filterSchedule('ascot')" class="schedule-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700">Royal Ascot</button>
+                        <button onclick="filterSchedule('churchill')" class="schedule-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700">Churchill Downs</button>
+                        <button onclick="filterSchedule('flemington')" class="schedule-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700">Flemington</button>
+                    </div>
+                </div>
+
+                <!-- Fixtures Grid -->
+                <div id="schedule-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Schedule Cards Rendered Dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: BETTING HISTORY / MY BETS -->
+        <div id="tab-history" class="tab-content hidden flex-col gap-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-xl font-extrabold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-clock-rotate-left text-emerald-400"></i> My Wagering History
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-1">Review your active open bets, settled tickets, and payout returns.</p>
+                    </div>
+                    <span class="text-xs bg-slate-800 text-slate-300 border border-slate-700 px-3 py-1 rounded-lg">
+                        Total Settled P&L: <strong class="text-emerald-400 font-mono">+$182.50</strong>
+                    </span>
+                </div>
+
+                <!-- History Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead>
+                            <tr class="text-xs uppercase text-slate-400 border-b border-slate-800 bg-slate-950/40">
+                                <th class="py-3 px-4">Ticket ID / Date</th>
+                                <th class="py-3 px-4">Event / Race</th>
+                                <th class="py-3 px-4">Selection / Bet Type</th>
+                                <th class="py-3 px-4 text-center">Odds</th>
+                                <th class="py-3 px-4 text-right">Stake</th>
+                                <th class="py-3 px-4 text-right">Return / Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="my-bets-table-body" class="divide-y divide-slate-800/60 font-medium">
+                            <!-- Dynamic History Rows Injected Here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- SECURE PAYMENT & CASHIER MODAL -->
+    <div id="deposit-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <button onclick="closeDepositModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
+            <div class="flex items-center gap-3 mb-5">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-vault"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-white">Secure Cashier Portal</h3>
+                    <p class="text-xs text-slate-400">Instant deposits & 24/7 fast withdrawals</p>
+                </div>
+            </div>
+
+            <!-- Modal Action Selector -->
+            <div class="grid grid-cols-2 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-bold mb-5">
+                <button onclick="setCashierTab('deposit')" id="cashier-tab-dep" class="py-2 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Deposit Funds</button>
+                <button onclick="setCashierTab('withdraw')" id="cashier-tab-with" class="py-2 rounded-lg text-slate-400 hover:text-white">Withdrawal</button>
+            </div>
+
+            <!-- Payment Methods Grid -->
+            <label class="block text-xs font-semibold text-slate-300 mb-2">Select Payment Gateway:</label>
+            <div class="grid grid-cols-3 gap-2 mb-4">
+                <button onclick="selectPaymentMethod('card')" id="pm-card" class="payment-method-btn p-3 rounded-xl border border-emerald-500 bg-emerald-500/10 flex flex-col items-center gap-1.5 transition">
+                    <i class="fa-solid fa-credit-card text-emerald-400 text-lg"></i>
+                    <span class="text-[11px] font-bold text-slate-200">Card / Visa</span>
+                </button>
+                <button onclick="selectPaymentMethod('crypto')" id="pm-crypto" class="payment-method-btn p-3 rounded-xl border border-slate-800 bg-slate-950/60 flex flex-col items-center gap-1.5 transition">
+                    <i class="fa-brands fa-bitcoin text-amber-400 text-lg"></i>
+                    <span class="text-[11px] font-bold text-slate-200">Crypto / USDT</span>
+                </button>
+                <button onclick="selectPaymentMethod('wallet')" id="pm-wallet" class="payment-method-btn p-3 rounded-xl border border-slate-800 bg-slate-950/60 flex flex-col items-center gap-1.5 transition">
+                    <i class="fa-solid fa-wallet text-teal-400 text-lg"></i>
+                    <span class="text-[11px] font-bold text-slate-200">E-Wallet</span>
+                </button>
+            </div>
+
+            <!-- Amount Preset Input -->
+            <div class="mb-5">
+                <label class="block text-xs font-semibold text-slate-300 mb-1.5">Enter Deposit Amount ($USD):</label>
+                <div class="relative">
+                    <span class="absolute left-3.5 top-2.5 text-slate-400 font-bold">$</span>
+                    <input type="number" id="cashier-amount" value="100" class="w-full bg-slate-950 border border-slate-700 rounded-xl pl-8 pr-4 py-2 text-white font-mono font-bold text-lg focus:outline-none focus:border-emerald-500">
+                </div>
+                <div class="flex gap-2 mt-2">
+                    <button onclick="setCashierAmount(25)" class="flex-1 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono rounded-lg border border-slate-700">+$25</button>
+                    <button onclick="setCashierAmount(50)" class="flex-1 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono rounded-lg border border-slate-700">+$50</button>
+                    <button onclick="setCashierAmount(100)" class="flex-1 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono rounded-lg border border-slate-700">+$100</button>
+                    <button onclick="setCashierAmount(500)" class="flex-1 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono rounded-lg border border-slate-700">+$500</button>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button onclick="processCashierTransaction()" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-sm uppercase tracking-wider rounded-xl hover:from-emerald-400 hover:to-teal-400 transition shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-lock"></i> Authorize Deposit
+            </button>
+
+            <!-- Security Footnote -->
+            <p class="text-[10px] text-center text-slate-500 mt-3 flex items-center justify-center gap-1">
+                <i class="fa-solid fa-user-shield text-slate-400"></i> PCI-DSS Level 1 Compliant Payment Gateway
+            </p>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-950 border-t border-slate-800 mt-12 py-8 px-4 lg:px-8 text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-horse-head text-amber-500 text-lg"></i>
+                <span class="font-extrabold text-slate-300">EQUIRACE PRO ENTERTAINMENT LTD</span>
+            </div>
+            <div class="flex flex-wrap gap-6 text-slate-400">
+                <a href="#" class="hover:text-amber-400 transition">Responsible Gambling</a>
+                <a href="#" class="hover:text-amber-400 transition">Privacy Policy</a>
+                <a href="#" class="hover:text-amber-400 transition">Terms of Service</a>
+                <a href="#" class="hover:text-amber-400 transition">Licensing & Regulatory Compliance</a>
+            </div>
+            <div>
+                <span>18+ Play Responsibly. Gambling can be addictive.</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // GLOBAL DATA STATE
+        let userBalance = 2450.00;
+        let activeBetType = 'single';
+        let currentOddsFormat = 'decimal';
+        let currentCashierMode = 'deposit';
+        let selectedPaymentGateway = 'card';
+        let betSlip = [];
+        
+        // Mock Runners Data for Current Featured Race
+        let runnersData = [
+            { id: 1, number: 1, name: "Thunder Bolt", jockey: "R. Moore", form: "1-2-1-1", weight: "126 lbs", decimalOdds: 3.50, color: "bg-amber-500", prevOdds: 3.50 },
+            { id: 2, number: 2, name: "Royal Sovereign", jockey: "L. Dettori", form: "2-1-3-4", weight: "124 lbs", decimalOdds: 4.80, color: "bg-blue-500", prevOdds: 4.80 },
+            { id: 3, number: 3, name: "Golden Arrow", jockey: "W. Buick", form: "1-1-2-1", weight: "128 lbs", decimalOdds: 2.75, color: "bg-red-500", prevOdds: 2.75 },
+            { id: 4, number: 4, name: "Midnight Shadow", jockey: "O. Murphy", form: "4-3-1-2", weight: "122 lbs", decimalOdds: 8.50, color: "bg-emerald-500", prevOdds: 8.50 },
+            { id: 5, number: 5, name: "Velocita", jockey: "H. Doyle", form: "3-2-2-5", weight: "120 lbs", decimalOdds: 12.00, color: "bg-purple-500", prevOdds: 12.00 },
+            { id: 6, number: 6, name: "Desert Storm", jockey: "J. McDonald", form: "1-4-5-2", weight: "125 lbs", decimalOdds: 15.00, color: "bg-teal-500", prevOdds: 15.00 }
+        ];
+
+        // Mock User Bet History
+        let myBetsHistory = [
+            { id: "T-89241", race: "Royal Ascot R2", selection: "Golden Arrow", betType: "Win Single", odds: "2.75", stake: 50.00, returnVal: 137.50, status: "WON" },
+            { id: "T-89102", race: "Churchill Downs R5", selection: "Silver Bullet", betType: "Place Single", odds: "3.20", stake: 25.00, returnVal: 0.00, status: "LOST" },
+            { id: "T-88991", race: "Flemington R1", selection: "Thunder Bolt / Royal Sov", betType: "Exacta", odds: "14.50", stake: 10.00, returnVal: 145.00, status: "WON" }
+        ];
+
+        // Mock Upcoming Schedule
+        const raceSchedule = [
+            { venue: "Royal Ascot", track: "ascot", raceNo: "Race 4", name: "Prince of Wales's Stakes", distance: "1200m Turf", time: "15:30", purse: "$500,000", status: "LIVE NOW" },
+            { venue: "Royal Ascot", track: "ascot", raceNo: "Race 5", name: "Gold Cup", distance: "4000m Turf", time: "16:15", purse: "$750,000", status: "In 45 mins" },
+            { venue: "Churchill Downs", track: "churchill", raceNo: "Race 7", name: "Kentucky Oaks Prep", distance: "1800m Dirt", time: "17:00", purse: "$300,000", status: "Upcoming" },
+            { venue: "Churchill Downs", track: "churchill", raceNo: "Race 8", name: "Derby Trial Stakes", distance: "2000m Dirt", time: "18:20", purse: "$400,000", status: "Upcoming" },
+            { venue: "Flemington", track: "flemington", raceNo: "Race 2", name: "Melbourne Sprint Handicap", distance: "1000m Turf", time: "19:45", purse: "$250,000", status: "Upcoming" }
+        ];
+
+        // INITIALIZATION ON WINDOW LOAD
+        window.onload = function () {
+            renderRunnersTable();
+            renderBetSlip();
+            renderSchedule('all');
+            renderMyBets();
+            startDynamicOddsLoop();
+            triggerRaceSimulation();
+        };
+
+        // RENDER RUNNERS TABLE
+        function renderRunnersTable() {
+            const tbody = document.getElementById('runners-table-body');
+            tbody.innerHTML = '';
+
+            runnersData.forEach((runner) => {
+                const formattedWinOdds = formatOdds(runner.decimalOdds);
+                const formattedPlaceOdds = formatOdds((runner.decimalOdds * 0.35 + 1.1).toFixed(2));
+                const isSelected = betSlip.some(b => b.runnerId === runner.id && b.betKind === 'win');
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/40 transition border-b border-slate-800/40";
+                tr.innerHTML = `
+                    <td class="py-3 px-3">
+                        <div class="flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-full ${runner.color} text-slate-950 font-black text-xs flex items-center justify-center shadow">${runner.number}</span>
+                            <i class="fa-solid fa-shirt text-slate-400 text-sm"></i>
+                        </div>
+                    </td>
+                    <td class="py-3 px-3">
+                        <div class="font-bold text-white">${runner.name}</div>
+                        <div class="text-xs text-slate-400">Jockey: ${runner.jockey}</div>
+                    </td>
+                    <td class="py-3 px-3 hidden sm:table-cell text-xs">
+                        <span class="bg-slate-950 px-2 py-0.5 rounded font-mono text-amber-400 border border-slate-800">${runner.form}</span>
+                        <span class="text-slate-400 ml-2">${runner.weight}</span>
+                    </td>
+                    <td class="py-3 px-3 text-center">
+                        <button onclick="toggleBetSelection(${runner.id}, 'win')" id="odds-btn-win-${runner.id}" class="odds-btn ${isSelected ? 'bg-amber-500 text-slate-950 font-black' : 'bg-slate-950 hover:bg-amber-500/20 text-amber-400 border border-slate-700/80'} px-3 py-1.5 rounded-lg font-mono font-bold text-sm transition min-w-[65px] border">
+                            ${formattedWinOdds}
+                        </button>
+                    </td>
+                    <td class="py-3 px-3 text-center">
+                        <button onclick="toggleBetSelection(${runner.id}, 'place')" class="bg-slate-950 hover:bg-emerald-500/20 text-emerald-400 border border-slate-700/80 px-3 py-1.5 rounded-lg font-mono font-bold text-sm transition min-w-[65px]">
+                            ${formattedPlaceOdds}
+                        </button>
+                    </td>
+                    <td class="py-3 px-3 text-right">
+                        <button onclick="openRunnerStatsModal(${runner.id})" class="text-xs text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-lg transition">
+                            <i class="fa-solid fa-chart-simple mr-1"></i> Stats
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // ODDS DISPLAY FORMATTER
+        function formatOdds(decimalVal) {
+            const dec = parseFloat(decimalVal);
+            if (currentOddsFormat === 'decimal') return dec.toFixed(2);
+            if (currentOddsFormat === 'american') {
+                const american = dec >= 2.0 ? Math.round((dec - 1) * 100) : Math.round(-100 / (dec - 1));
+                return american > 0 ? `+${american}` : `${american}`;
+            }
+            if (currentOddsFormat === 'fractional') {
+                // Approximate fractional converter
+                if (dec === 3.5) return "5/2";
+                if (dec === 2.75) return "7/4";
+                if (dec === 4.8) return "19/5";
+                if (dec === 8.5) return "15/2";
+                if (dec === 12.0) return "11/1";
+                if (dec === 15.0) return "14/1";
+                return `${Math.round(dec - 1)}/1`;
+            }
+            return dec.toFixed(2);
+        }
+
+        function updateOddsDisplayFormat() {
+            currentOddsFormat = document.getElementById('odds-format').value;
+            renderRunnersTable();
+        }
+
+        // DYNAMIC REAL-TIME ODDS ENGINE SIMULATION
+        function startDynamicOddsLoop() {
+            setInterval(() => {
+                // Randomly select a horse to fluctuate odds
+                const randomIndex = Math.floor(Math.random() * runnersData.length);
+                const runner = runnersData[randomIndex];
+                const delta = (Math.random() * 0.4 - 0.2); // Fluctuate between -0.2 and +0.2
+                const newOdds = Math.max(1.20, parseFloat((runner.decimalOdds + delta).toFixed(2)));
+
+                runner.prevOdds = runner.decimalOdds;
+                runner.decimalOdds = newOdds;
+
+                // Flash animation trigger on table
+                const oddsBtn = document.getElementById(`odds-btn-win-${runner.id}`);
+                if (oddsBtn) {
+                    oddsBtn.innerHTML = formatOdds(newOdds);
+                    oddsBtn.classList.remove('odd-flash-up', 'odd-flash-down');
+                    void oddsBtn.offsetWidth; // trigger reflow
+                    oddsBtn.classList.add(newOdds > runner.prevOdds ? 'odd-flash-down' : 'odd-flash-up');
+                }
+
+                // Update bet slip if horse is in slip
+                const slipItem = betSlip.find(b => b.runnerId === runner.id);
+                if (slipItem) {
+                    slipItem.odds = newOdds;
+                    renderBetSlip();
+                }
+            }, 4000);
+        }
+
+        // TOGGLE BET SELECTION
+        function toggleBetSelection(runnerId, betKind) {
+            const existingIndex = betSlip.findIndex(b => b.runnerId === runnerId && b.betKind === betKind);
+            const runner = runnersData.find(r => r.id === runnerId);
+
+            if (existingIndex > -1) {
+                betSlip.splice(existingIndex, 1);
+                showToast(`Removed ${runner.name} from slip.`, 'info');
+            } else {
+                betSlip.push({
+                    runnerId: runner.id,
+                    runnerName: runner.name,
+                    runnerNumber: runner.number,
+                    betKind: betKind,
+                    odds: runner.decimalOdds,
+                    stake: 10.00
+                });
+                showToast(`Added ${runner.name} to slip!`, 'success');
+            }
+            renderRunnersTable();
+            renderBetSlip();
+        }
+
+        // RENDER BET SLIP
+        function renderBetSlip() {
+            const container = document.getElementById('bet-slip-items');
+            const badge = document.getElementById('bet-count-badge');
+            badge.innerText = betSlip.length;
+
+            if (betSlip.length === 0) {
+                container.innerHTML = `
+                    <div id="empty-slip-msg" class="flex flex-col items-center justify-center text-center py-10 text-slate-500">
+                        <i class="fa-solid fa-receipt text-4xl mb-2 text-slate-700"></i>
+                        <p class="text-sm font-medium">Your betting slip is currently empty.</p>
+                        <p class="text-xs text-slate-600 mt-1">Click on any odds button to add a runner to your slip.</p>
+                    </div>
+                `;
+                calculateTotals();
+                return;
+            }
+
+            container.innerHTML = '';
+            betSlip.forEach((bet, idx) => {
+                const item = document.createElement('div');
+                item.className = "bg-slate-950 p-3 rounded-xl border border-slate-800 flex flex-col gap-2 relative";
+                item.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 rounded-full bg-amber-500 text-slate-950 text-[10px] font-black flex items-center justify-center">${bet.runnerNumber}</span>
+                            <span class="font-bold text-white text-xs">${bet.runnerName}</span>
+                            <span class="text-[10px] uppercase bg-slate-800 text-amber-400 px-1.5 py-0.5 rounded font-bold">${bet.betKind}</span>
+                        </div>
+                        <button onclick="removeBetFromSlip(${idx})" class="text-slate-500 hover:text-red-400 text-xs">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <div class="flex items-center justify-between text-xs mt-1">
+                        <div class="flex items-center gap-1 text-slate-400">
+                            <span>Odds:</span>
+                            <span class="font-mono font-bold text-emerald-400">${formatOdds(bet.odds)}</span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <span class="text-slate-400 text-[11px]">Stake $:</span>
+                            <input type="number" value="${bet.stake}" onchange="updateBetStake(${idx}, this.value)" class="w-16 bg-slate-900 border border-slate-700 rounded px-1.5 py-0.5 text-right font-mono font-bold text-white text-xs focus:outline-none focus:border-amber-500">
+                        </div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+
+            calculateTotals();
+        }
+
+        function removeBetFromSlip(index) {
+            betSlip.splice(index, 1);
+            renderRunnersTable();
+            renderBetSlip();
+        }
+
+        function clearBetSlip() {
+            betSlip = [];
+            renderRunnersTable();
+            renderBetSlip();
+        }
+
+        function updateBetStake(index, value) {
+            const parsed = parseFloat(value) || 0;
+            betSlip[index].stake = parsed;
+            calculateTotals();
+        }
+
+        function addQuickStake(amount) {
+            if (betSlip.length === 0) return;
+            betSlip.forEach(b => b.stake += amount);
+            renderBetSlip();
+        }
+
+        function setBetType(type) {
+            activeBetType = type;
+            ['single', 'exacta', 'trifecta'].forEach(t => {
+                const btn = document.getElementById(`bet-type-${t}`);
+                if (t === type) {
+                    btn.className = "py-2 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 transition font-bold";
+                } else {
+                    btn.className = "py-2 rounded-lg text-slate-400 hover:text-white transition";
+                }
+            });
+            calculateTotals();
+        }
+
+        function calculateTotals() {
+            let totalStake = 0;
+            let potentialPayout = 0;
+
+            if (activeBetType === 'single') {
+                betSlip.forEach(b => {
+                    totalStake += b.stake;
+                    potentialPayout += (b.stake * b.odds);
+                });
+            } else if (activeBetType === 'exacta' && betSlip.length >= 2) {
+                totalStake = betSlip[0].stake;
+                potentialPayout = totalStake * (betSlip[0].odds * betSlip[1].odds * 0.85); // Exotic multiplier calculation
+            } else if (activeBetType === 'trifecta' && betSlip.length >= 3) {
+                totalStake = betSlip[0].stake;
+                potentialPayout = totalStake * (betSlip[0].odds * betSlip[1].odds * betSlip[2].odds * 0.75);
+            }
+
+            document.getElementById('slip-total-stake').innerText = `$${totalStake.toFixed(2)}`;
+            document.getElementById('slip-potential-payout').innerText = `$${potentialPayout.toFixed(2)}`;
+
+            const placeBtn = document.getElementById('btn-place-wager');
+            placeBtn.disabled = betSlip.length === 0 || totalStake <= 0;
+        }
+
+        // PLACE WAGER
+        function placeWager() {
+            const totalStake = betSlip.reduce((sum, b) => sum + b.stake, 0);
+            if (totalStake > userBalance) {
+                showToast("Insufficient Balance! Please deposit funds.", "error");
+                openDepositModal();
+                return;
+            }
+
+            // Deduct balance
+            userBalance -= totalStake;
+            document.getElementById('user-balance').innerText = `$${userBalance.toFixed(2)}`;
+
+            // Create ticket history
+            betSlip.forEach(bet => {
+                myBetsHistory.unshift({
+                    id: `T-${Math.floor(10000 + Math.random() * 90000)}`,
+                    race: "Royal Ascot R4",
+                    selection: bet.runnerName,
+                    betType: `${bet.betKind.toUpperCase()} (${activeBetType.toUpperCase()})`,
+                    odds: bet.odds.toFixed(2),
+                    stake: bet.stake,
+                    returnVal: (bet.stake * bet.odds),
+                    status: "OPEN"
+                });
+            });
+
+            renderMyBets();
+            clearBetSlip();
+            showToast("Wager Placed Successfully! Best of luck!", "success");
+        }
+
+        // SIMULATION CANVAS RACE ENGINE
+        function triggerRaceSimulation() {
+            let p1 = 5, p2 = 3, p3 = 7, p4 = 2;
+            let distLeft = 450;
+            const timerEl = document.getElementById('race-timer');
+            let seconds = 42;
+
+            const simInterval = setInterval(() => {
+                p1 += Math.random() * 3;
+                p2 += Math.random() * 3;
+                p3 += Math.random() * 3.2;
+                p4 += Math.random() * 2.8;
+
+                distLeft -= 8;
+                if (distLeft < 0) distLeft = 0;
+
+                document.getElementById('runner-marker-1').style.left = `${Math.min(p1, 85)}%`;
+                document.getElementById('runner-marker-2').style.left = `${Math.min(p2, 85)}%`;
+                document.getElementById('runner-marker-3').style.left = `${Math.min(p3, 85)}%`;
+                document.getElementById('runner-marker-4').style.left = `${Math.min(p4, 85)}%`;
+
+                document.getElementById('dist-left').innerText = `${distLeft}m`;
+
+                seconds += 0.4;
+                timerEl.innerText = `00:${seconds.toFixed(1)}`;
+
+                if (distLeft <= 0) {
+                    clearInterval(simInterval);
+                    showToast("Race Finish! Official photo-finish verification in progress.", "info");
+                }
+            }, 300);
+        }
+
+        function toggleStreamMode() {
+            const sim = document.getElementById('simulation-container');
+            const vid = document.getElementById('video-stream-container');
+            const label = document.getElementById('view-mode-label');
+
+            if (sim.classList.contains('hidden')) {
+                sim.classList.remove('hidden');
+                vid.classList.add('hidden');
+                label.innerText = "Switch to Live Stream";
+            } else {
+                sim.classList.add('hidden');
+                vid.classList.remove('hidden');
+                label.innerText = "Switch to 2D Track";
+            }
+        }
+
+        // CASHIER MODAL FUNCTIONS
+        function openDepositModal() {
+            document.getElementById('deposit-modal').classList.remove('hidden');
+        }
+
+        function closeDepositModal() {
+            document.getElementById('deposit-modal').classList.add('hidden');
+        }
+
+        function setCashierAmount(amt) {
+            document.getElementById('cashier-amount').value = amt;
+        }
+
+        function selectPaymentMethod(method) {
+            selectedPaymentGateway = method;
+            ['card', 'crypto', 'wallet'].forEach(m => {
+                const btn = document.getElementById(`pm-${m}`);
+                if (m === method) {
+                    btn.className = "payment-method-btn p-3 rounded-xl border border-emerald-500 bg-emerald-500/10 flex flex-col items-center gap-1.5 transition";
+                } else {
+                    btn.className = "payment-method-btn p-3 rounded-xl border border-slate-800 bg-slate-950/60 flex flex-col items-center gap-1.5 transition";
+                }
+            });
+        }
+
+        function setCashierTab(tab) {
+            currentCashierMode = tab;
+            const depBtn = document.getElementById('cashier-tab-dep');
+            const withBtn = document.getElementById('cashier-tab-with');
+            if (tab === 'deposit') {
+                depBtn.className = "py-2 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                withBtn.className = "py-2 rounded-lg text-slate-400 hover:text-white";
+            } else {
+                withBtn.className = "py-2 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                depBtn.className = "py-2 rounded-lg text-slate-400 hover:text-white";
+            }
+        }
+
+        function processCashierTransaction() {
+            const amt = parseFloat(document.getElementById('cashier-amount').value) || 0;
+            if (amt <= 0) {
+                showToast("Please enter a valid amount.", "error");
+                return;
+            }
+
+            if (currentCashierMode === 'deposit') {
+                userBalance += amt;
+                showToast(`Successfully deposited $${amt.toFixed(2)} via ${selectedPaymentGateway.toUpperCase()}!`, "success");
+            } else {
+                if (amt > userBalance) {
+                    showToast("Withdrawal amount exceeds balance.", "error");
+                    return;
+                }
+                userBalance -= amt;
+                showToast(`Withdrawal of $${amt.toFixed(2)} initiated!`, "success");
+            }
+
+            document.getElementById('user-balance').innerText = `$${userBalance.toFixed(2)}`;
+            closeDepositModal();
+        }
+
+        // TAB SWITCHING
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = "nav-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white transition-all duration-200 flex items-center gap-2";
+            });
+
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.className = "nav-btn px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-2";
+            }
+        }
+
+        // SCHEDULE RENDER
+        function renderSchedule(filter) {
+            const grid = document.getElementById('schedule-grid');
+            grid.innerHTML = '';
+
+            const filtered = filter === 'all' ? raceSchedule : raceSchedule.filter(s => s.track === filter);
+
+            filtered.forEach(s => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-950 p-4 rounded-xl border border-slate-800/80 hover:border-slate-700 transition flex flex-col justify-between gap-3";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-center text-xs mb-1">
+                            <span class="text-amber-400 font-bold uppercase tracking-wider">${s.venue}</span>
+                            <span class="text-slate-400">${s.time}</span>
+                        </div>
+                        <h4 class="text-base font-bold text-white">${s.raceNo}: ${s.name}</h4>
+                        <div class="text-xs text-slate-400 mt-1 flex gap-3">
+                            <span><i class="fa-solid fa-ruler-horizontal text-slate-500"></i> ${s.distance}</span>
+                            <span><i class="fa-solid fa-sack-dollar text-emerald-400"></i> ${s.purse}</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center pt-2 border-t border-slate-800/60">
+                        <span class="text-[11px] font-bold ${s.status === 'LIVE NOW' ? 'text-red-400 animate-pulse' : 'text-emerald-400'}">${s.status}</span>
+                        <button onclick="switchTab('live')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-1.5 rounded-lg transition font-medium">View Racecard</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterSchedule(track) {
+            renderSchedule(track);
+        }
+
+        // RENDER MY BETS
+        function renderMyBets() {
+            const tbody = document.getElementById('my-bets-table-body');
+            tbody.innerHTML = '';
+
+            myBetsHistory.forEach(b => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/40 transition border-b border-slate-800/40 text-xs";
+                tr.innerHTML = `
+                    <td class="py-3 px-4">
+                        <div class="font-mono text-slate-300 font-bold">${b.id}</div>
+                        <div class="text-slate-500 text-[10px]">Just now</div>
+                    </td>
+                    <td class="py-3 px-4 font-bold text-white">${b.race}</td>
+                    <td class="py-3 px-4">
+                        <span class="text-slate-200 font-semibold">${b.selection}</span>
+                        <span class="text-slate-400 block text-[10px]">${b.betType}</span>
+                    </td>
+                    <td class="py-3 px-4 text-center font-mono font-bold text-amber-400">${b.odds}</td>
+                    <td class="py-3 px-4 text-right font-mono text-slate-300">$${b.stake.toFixed(2)}</td>
+                    <td class="py-3 px-4 text-right">
+                        <span class="font-mono font-bold ${b.status === 'WON' ? 'text-emerald-400' : b.status === 'OPEN' ? 'text-amber-400' : 'text-slate-500'}">
+                            ${b.status === 'WON' ? `+$${b.returnVal.toFixed(2)}` : b.status === 'OPEN' ? 'Pending' : '$0.00'}
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // TOAST NOTIFICATIONS
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const bgColor = type === 'success' ? 'bg-emerald-950 border-emerald-500/50 text-emerald-300' :
+                            type === 'error' ? 'bg-red-950 border-red-500/50 text-red-300' :
+                            'bg-slate-900 border-slate-700 text-slate-200';
+            
+            const icon = type === 'success' ? 'fa-circle-check text-emerald-400' :
+                         type === 'error' ? 'fa-triangle-exclamation text-red-400' : 'fa-circle-info text-amber-400';
+
+            toast.className = `p-3.5 rounded-xl border ${bgColor} backdrop-blur-md shadow-xl flex items-center gap-3 text-xs font-semibold pointer-events-auto transition-all transform translate-y-2 opacity-0`;
+            toast.innerHTML = `<i class="fa-solid ${icon} text-base"></i> <span>${message}</span>`;
+            
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 50);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        function openRunnerStatsModal(runnerId) {
+            const runner = runnersData.find(r => r.id === runnerId);
+            if (runner) {
+                showToast(`Displaying performance telemetry for ${runner.name}`, 'info');
+            }
+        }
+    </script>
+</body>
+</html>
